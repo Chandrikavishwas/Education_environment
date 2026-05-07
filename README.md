@@ -32,7 +32,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — you will be redirected to the login page.
+Open https://education-environment-eight.vercel.app/ — you will be redirected to the login page.
 
 ---
 
