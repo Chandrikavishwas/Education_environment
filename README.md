@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# EduBroadcast — Content Broadcasting System
 
-## Getting Started
+A frontend-only implementation of a school content broadcasting system built with **Next.js 16**, **Tailwind CSS**, **React Hook Form**, and **Zod**. Teachers upload educational content, principals approve or reject it, and students can view live broadcasts on a public page.
 
-First, run the development server:
+---
+
+## Tech Stack
+
+| Layer           | Technology                               |
+|-----------------|------------------------------------------|
+| Framework       | Next.js 16 (App Router)                  |
+| Language        | JavaScript (ES2022+)                     |
+| Styling         | Tailwind CSS v4                          |
+| Forms           | React Hook Form + Zod                    |
+| HTTP client     | Axios (service layer)                    |
+| Notifications   | react-hot-toast                          |
+| Icons           | lucide-react                             |
+| Data persistence| localStorage (mock backend)              |
+
+---
+
+## Setup
 
 ```bash
+# 1. Clone / unzip the project
+cd content-broadcasting-system
+
+# 2. Install dependencies
+npm install
+
+# 3. Start the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) — you will be redirected to the login page.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Demo Accounts
 
-## Learn More
+| Role      | Email                    | Password      |
+|-----------|--------------------------|---------------|
+| Teacher   | teacher@school.com       | password123   |
+| Teacher 2 | teacher2@school.com      | password123   |
+| Principal | principal@school.com     | password123   |
 
-To learn more about Next.js, take a look at the following resources:
+Demo credentials are shown on the login page with one-click fill buttons.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## User Flows
 
-## Deploy on Vercel
+### Teacher
+1. Log in → redirected to **Teacher Dashboard**
+2. **Upload Content** — fill title, subject, description, upload image, set start/end time and rotation duration
+3. **My Content** — view all uploads with status (Pending / Approved / Rejected) and rejection reasons
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Principal
+1. Log in → redirected to **Principal Dashboard**
+2. **Pending Approvals** — review content, approve or reject (rejection requires a mandatory reason)
+3. **All Content** — search and filter all school content by title, subject, teacher name, or status
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Public (Students)
+- Navigate to `/live/<teacherId>` — no login required
+- See currently active (approved + within time window) content
+- Auto-refreshes every 30 seconds; slides rotate per `rotationDuration`
+
+---
+
+## Project Structure
+
+```
+app/                    Next.js pages (App Router)
+components/
+  ui/                   Primitive UI: Button, Badge, Modal, Skeleton, Input, Select
+  shared/               Composed components used across roles
+  teacher/              Teacher-specific: UploadForm, MyContentList
+  principal/            Principal-specific: ApprovalModal, ContentFilters, ContentTable
+services/               API layer (easily replaceable with real backend)
+hooks/                  useAuth, useContent
+context/                AuthContext (global auth state)
+utils/                  constants, helpers, mockData, validators
+layouts/                TeacherLayout, PrincipalLayout (sidebar + mobile nav)
+```
+
+---
+
+## Replacing the Mock Backend
+
+All API calls go through `services/`. To connect a real backend:
+
+1. Set `NEXT_PUBLIC_API_URL=https://your-api.com` in `.env.local`
+2. Replace the body of each service function with an `apiClient` call
+3. No component code changes needed
+
+The `apiClient` (`services/api.client.js`) automatically attaches the Bearer token and handles 401 redirects.
+
+---
+
+## Key Features
+
+- **Role-based routing** — wrong-role access silently redirects to the correct dashboard
+- **Drag-and-drop file upload** with client-side type/size validation and live preview
+- **Skeleton loaders** on every data-fetching page
+- **Toast notifications** for all async actions (success + error)
+- **Client-side search + filter** (memoized) on the All Content page
+- **Live page polling** — auto-refreshes every 30 seconds
+- **Slide rotation** — cycles through multiple live items per their `rotationDuration`
+- **Empty and error states** on every list/table
+- **Mobile-responsive** sidebar with overlay on small screens
+
+---
+
+## Build
+
+```bash
+npm run build
+npm run start
+```
+
+---
+
+## Documentation
+
+See `Frontend-notes.txt` for a detailed explanation of:
+- Project structure
+- Authentication flow
+- Role-based routing
+- API integration approach
+- State management decisions
+- Assumptions
